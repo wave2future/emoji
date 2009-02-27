@@ -1,0 +1,64 @@
+{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
+{\fonttbl\f0\fswiss\fcharset0 Optima-Regular;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\vieww13880\viewh13280\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+
+\f0\b\fs36 \cf0 Emoji.plugin 1.0
+\b0 \
+
+\fs26 \
+A WebKit Plug-in for Safari/WebKit browser. It will convert Emoji characters into viewable iPhone Emoji icons, if HTML has "<object type="text/x-emoji"></object>" tag.\
+\
+
+\b\fs28 How to test
+\b0 \
+
+\fs26 \
+- Click "Build and Go", it will open Safari\
+- Drag the test.html to Safari\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+
+\f1\fs24 \cf0 {{\NeXTGraphic Screenshot.png \width12158 \height8059
+}¬}\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+
+\f0\fs26 \cf0 \
+
+\b\fs28 How it works
+\b0 \
+
+\fs26 \
+When browser found HTML or XHTML content has MIME "text/x-emoji" type object, it will load this standard WebKit Plug-in.\
+\
+During the plug-ing initialization, it loaded a JavaScript file within the plug-in bundle, and ask current web frame to evaluate this script. The script is based on two people's work over internet, one is photar's Grease Monkey script, and the other is Johannes Schriewer's iPhone emoji image data. \
+\
+The Grease Monkey script will use XPATH to grep out all the text node, and compare each characters with Emoji character codes, and replace them with <img> image element and uses the image data stored as JSON format in the script.\
+\
+And browser will update the web frame with Emoji icons instantly.\
+\
+
+\b\fs28 Known Issues
+\b0 \
+
+\fs26 \
+- Your HTML/XHTML content needs "<object type="text/x-emoji"></object>" tag to let browsers load this plug-in.\
+- If your browser disable the plug-ins or JavaScript support in preference, this plug-in won't work.\
+- If your HTML/XHTML is too complex, the script could take very long time to finish the replacement.\
+\
+
+\b\fs28 About 
+\b0 \
+\
+
+\fs26 This plug-in is licensed under MIT license. \
+The source code is hosted on github.\
+\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
+
+\b \cf0 digdog
+\b0 , the author of FrostyPlace App. \
+http://homepage.mac.com/digdog/software/\
+http://hollowout.blogspot.com\
+}
