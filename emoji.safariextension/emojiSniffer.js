@@ -97,5 +97,3 @@ var emojiSniffer = {
 }
 
 emojiSniffer.init();
-
-window.onblur = function(e) {safari.self.tab.dispatchMessage("resetBadgeCount", null);};
