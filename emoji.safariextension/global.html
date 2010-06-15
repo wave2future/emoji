@@ -27,6 +27,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+var badgeCount = 0;
  
 var emojiDataSource = {
     "init": function(event) {
@@ -45,10 +46,12 @@ var emojiDataSource = {
             } 
             break;
         case "resetBadgeCount":
-            safari.extension.settings.badgeCount = 0;     
+            badgeCount = 0;
+            emojiDataSource.validateToolbarItems();     
             break;
         case "increaseBadgeCount":
-            safari.extension.settings.badgeCount++;
+            badgeCount++;
+            emojiDataSource.validateToolbarItems();     
             break;
         }    
     },
@@ -63,7 +66,7 @@ var emojiDataSource = {
         switch (event.command) {
         case "convertEmoji":
             if ("badge" in event.target) {
-                event.target.badge = safari.extension.settings.badgeCount;
+                event.target.badge = badgeCount;
             }
             break;
 	    }    
