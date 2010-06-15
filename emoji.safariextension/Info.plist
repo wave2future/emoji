@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>Ching-Lan 'digdog' Huang</string>
 	<key>CFBundleDisplayName</key>
-	<string>emoji</string>
+	<string>Emoji</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.github.digdog.emoji</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -15,11 +15,36 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>Chrome</key>
-	<dict/>
+	<dict>
+		<key>Global Page</key>
+		<string>global.html</string>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Command</key>
+				<string>convertEmoji</string>
+				<key>Identifier</key>
+				<string>com.github.digdog.emoji.toolbarItem</string>
+				<key>Image</key>
+				<string>emoji.png</string>
+				<key>Label</key>
+				<string>Emoji</string>
+				<key>Palette Label</key>
+				<string>Convert Emoji Chars</string>
+				<key>Tool Tip</key>
+				<string></string>
+			</dict>
+		</array>
+	</dict>
 	<key>Content</key>
 	<dict>
 		<key>Scripts</key>
-		<dict/>
+		<dict>
+			<key>End</key>
+			<array>
+				<string>emojiSniffer.js</string>
+			</array>
+		</dict>
 	</dict>
 	<key>Description</key>
 	<string>Convert emoji characters to iPhone emoji icons.</string>
@@ -35,6 +60,8 @@
 			<string>All</string>
 		</dict>
 	</dict>
+	<key>Update Manifest URL</key>
+	<string>http://digdog.github.com/emoji/update.plist</string>
 	<key>Website</key>
 	<string>http://digdog.github.com/emoji</string>
 </dict>
