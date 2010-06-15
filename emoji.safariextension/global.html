@@ -45,7 +45,7 @@ var emojiDataSource = {
             } 
             break;
         case "resetBadgeCount":
-            safari.extension.settings.badgeCount = 0;
+            safari.extension.settings.badgeCount = 0;     
             break;
         case "increaseBadgeCount":
             safari.extension.settings.badgeCount++;
@@ -62,15 +62,8 @@ var emojiDataSource = {
     "performValidate": function(event) {
         switch (event.command) {
         case "convertEmoji":
-            var currentURL = safari.application.activeBrowserWindow.activeTab.url;
-            if (currentURL && safari.extension.settings.url != currentURL) {
-                safari.extension.settings.url = currentURL;
-                safari.extension.settings.badgeCount = 0;
-            }
-        
-            var badgeCount = safari.extension.settings.badgeCount;
             if ("badge" in event.target) {
-                event.target.badge = badgeCount;
+                event.target.badge = safari.extension.settings.badgeCount;
             }
             break;
 	    }    

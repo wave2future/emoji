@@ -26,17 +26,12 @@
  THE SOFTWARE.
  */
  
-// The script will be loaded for all subresources and subframes, we only allow it to run on the main frame.
-if (window != window.top)
-    return;
-
 var emojiSniffer = {
     "init": function() {
         safari.self.addEventListener("message", emojiSniffer.delegate, false);
         emojiSniffer.sniff();
     },
     "sniff": function() {
-        safari.self.tab.dispatchMessage("resetBadgeCount", null);
         emojiSniffer.storage = {};
 
         var textNodes = document.evaluate("//text()", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -86,6 +81,7 @@ var emojiSniffer = {
             });   
             break;
         case "sniff":
+            safari.self.tab.dispatchMessage("resetBadgeCount", null);
             emojiSniffer.sniff();
             break;
         }
@@ -101,3 +97,6 @@ var emojiSniffer = {
 }
 
 emojiSniffer.init();
+
+window.onblur = function(e) {safari.self.tab.dispatchMessage("resetBadgeCount", null);};
+window.onclose = function(e) {safari.self.tab.dispatchMessage("resetBadgeCount", null);};
