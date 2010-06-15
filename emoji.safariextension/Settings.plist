@@ -7,10 +7,22 @@
 		<false/>
 		<key>Key</key>
 		<string>convertEmojiManually</string>
+		<key>Secure</key>
+		<false/>
 		<key>Title</key>
-		<string>Manually convert by clicking "Emoji" toolbar button</string>
+		<string>Convert emoji manually (by clicking "Emoji" toolbar item)</string>
 		<key>Type</key>
 		<string>CheckBox</string>
+	</dict>
+	<dict>
+		<key>DefaultValue</key>
+		<real>0.0</real>
+		<key>Key</key>
+		<string>badgeCount</string>
+	</dict>
+	<dict>
+		<key>Key</key>
+		<string>url</string>
 	</dict>
 </array>
 </plist>

@@ -1,7 +1,89 @@
 <!DOCTYPE HTML>
 <script>
+/*
+ global.html
+ emoji.safariextension 1.0
 
-var emoji = {
+ The MIT License
+ 
+ Copyright (c) 2010 Ching-Lan 'digdog' Huang and digdog software.
+ http://digdog.tumblr.com
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+ 
+var emojiDataSource = {
+    "init": function(event) {
+        safari.application.addEventListener("message", emojiDataSource.respondToMessage, false);
+        safari.application.addEventListener("validate", emojiDataSource.performValidate, false);
+        safari.application.addEventListener("command", emojiDataSource.performCommand, false);
+    },
+    "respondToMessage": function(event) {
+        switch (event.name) {
+        case "convertToImage":
+            // event.message could be {"true":keyName} or {"false":keyName}, to allow sender (emojiSniffer) to decide if 
+            // itself was allowed to convert image based on user setting.
+            var keyName = event.message[safari.extension.settings.convertEmojiManually];
+            if (keyName in emojiDataSource.table) {
+                event.target.page.dispatchMessage("renderEmoji", {"charCode":keyName, "imgSrc":emojiDataSource.table[keyName]});        
+            } 
+            break;
+        case "resetBadgeCount":
+            safari.extension.settings.badgeCount = 0;
+            break;
+        case "increaseBadgeCount":
+            safari.extension.settings.badgeCount++;
+            break;
+        }    
+    },
+    "performCommand": function(event) {
+        switch (event.command) {
+        case "convertEmoji":
+            safari.application.activeBrowserWindow.activeTab.page.dispatchMessage("sniff", null);
+            break;
+        }    
+    },
+    "performValidate": function(event) {
+        switch (event.command) {
+        case "convertEmoji":
+            var currentURL = safari.application.activeBrowserWindow.activeTab.url;
+            if (currentURL && safari.extension.settings.url != currentURL) {
+                safari.extension.settings.url = currentURL;
+                safari.extension.settings.badgeCount = 0;
+            }
+        
+            var badgeCount = safari.extension.settings.badgeCount;
+            if ("badge" in event.target) {
+                event.target.badge = badgeCount;
+            }
+            break;
+	    }    
+    },
+    "validateToolbarItems": function validateToolbarItems() {
+        var toolbarItems = safari.extension.toolbarItems;
+        for (var i = 0; i < toolbarItems.length; ++i) {
+            if (toolbarItems[i].identifier !== "com.github.digdog.emoji.toolbarItem")
+            continue;
+            toolbarItems[i].validate();
+        }
+    },
+    "table": {
         "E001" : "data:image/png\;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAD5klEQVQ4ja2UTWxUVRTHf+/d9+a96bQzQzvQdqCdSgvRdsRWbIXy5QckRkyMiSzAqGsToy6wC00wRBai0UTiwojGxIUaQmJg5QZFSQwESMFWIdoAU5tSaWuHdj7ezHvvHhetUAnohrM7uef88j/3nvuHuxzGnQ6UQYeF8aAyWK0Mo8kAWyOzoTAWiJwLhF8Epv4XaBvGE3WW8WbcVP22UqatTNRClQbCUPC1xhNdzleDgyUtbwgUbwuMmsbepRFrT9yJUBexcS1FxFIoY75MgEBrqr6mGAbkPY9pzz+TD/QWgRKAuqmMnamIfWBJzGFJ1CURdYi5DjW2wrUtHEsRsSxspbCUAYY5r1p02gu1DoTvFyuMJSxzNOnY9UnXIR6NEFUKpUwQA2UujKznFVbCkIJXpRKGlPyAmUrVy/u6WSBvLcjchkh9wfPRAn4oKBN8P8APQmJRF6015UqV6+Uq14Em12bK84kqE43hmrA1hMP/vOh7JkhLIiotcVcWrksaa1zpuWf5zTzqyvb+bjn41ktSPP6xDDy7WQAxQSzDeBfAAhAhroGXn1lHbTKFVZOgp7uL3g295C6PM3hhhO5722lrb4V4DEoFmBhn/+7nWJa02f3pMUQkcQOo4WydZbK9v4uuvochkYJoFAJNpqOFTFc7VKpQ9eHaJFQ9qlUfypon+zp5/6vjXC2GZ28Ak8maXGdTHbYVofJXnrGxPzk/OkMmnSK7qh3TtOdn1j7Dv4+QuzrNA60NrKhxsCybjtallK/O5fL5IibApo2ZXb33pymUPQgruKu3su+jo5Bej4hGGYJlCCIC6X72HTiCu+pxjMCj4FXoyabZsimz68YeOpadjjmyPZtupHFZiqg3QW92JZmE4JhCuTxHtVJCYeBUptjQtZyMOU1Y9ciNjvPDxRF+G5395Npk4bQCuDZZODOVLxV7muu3tWXSRAxhZVua2iW1FPJ5Pj90iMGhIbId7aSWxlmRcKjMzlAqlzl1ZpjPjg0PXMrlD/zrpxTKwU9l33t685rWZsd1Kc4VGbqYo7EhTt+aTtZmO9E6ZHDwV2L4+IHP5PQkHxz+8fzPV2ZeuNUTAKiJmA/t39kfXv56QMYO75Fsfb0AYizsISAbMstl8uheufTl67J/V7+uiZhrFzPU4sQPZXzwysRwA+GO9raU8erzj9HZUE+DtuhraWJg56O8/dpTTE5N8c23p/Q7R07vmPXC7xYzbuuHtY7q3Xhf84cvbsqu7+7JkIzHMICZ2TnODf7BFyeGTp64MPFKoRKevrX3jgYLUOda61Jx95GGOrcDYHrOG5ma9Y7PecHJ/+q7q/E3m5es+MSwy7oAAAAASUVORK5CYII=",
         "E002" : "data:image/png\;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAEMElEQVQ4ja2UTWyUZRDHf/N+7Lu73W5bClWWlrYUQgXkQypiEVITUQ4YEBMgGhOiHjQaL0Y5eMNED3gxmhANKQcTP4IiUSKiAiqiBmltMEhrEQULpV27y7b7+b7v8zwebKsmxINxTpPJ5D8z//nPwP9scr2gLSyJiTwds2SNiHi+1t8HyNmoxd02Mjs05nJJ64MlzW4g/FfAhCV76j33sYRr41k2IoJBozTYliAIoVaUlWbCD0w6UBsCwyfXBay2rYM3eM6muniUGtfFcx1E/koxGARBaU3BD8hVAsbKZa5WwvWh4TMAZyrZFXmoLuJsqonHqI15VEVcPMdBxKC1mawuiAXaGBzHBtsmBCqqdDAdqASAPd2dY79TG43MTEY94hEX17ZQGEJl8LUh0AplQAtowIigjSE0Gl/pSDFUlzT0OZNzz3QtabdECLQh74eUwhClQWlDvliiUK5Ql0wQdR0sWxAjhFqjjSBiERF5PDBmnwNgCWuVMRSVplIqowJF2ffJK0MRSMUirOnsYP/xb7GBBFDl2riRCJYFgdEI0gHmTw6NobkYKLJBCYCGeJTU3BStzSk6VtzMju33klrezrF3D/PB4S/54dwgQ5evcmU0Q36SX29ye1MrfATY+8TGVTy5bQPz2xfgpFKQrAPLgfE8plRBapMQ98AvQXqMiaGLnDrVx7N7DtB7YQRAbADXtSONycij3Tu30javmaFMjhO9/RRGRqlD0H5IGAaYQpErgwN8deI0E9kx5tTEmd8yC5Ub46OeC2lgtwXQ2Tn3rpXLmhlOj1OayKFbu9j18oeo2atRRuGgsNFYqozddDsvvHqIyqxVlIKAfHYcPwy4f8tts6Zl40Wc+vmNye1tdbWkZjcQLQ6zqC1FU41QG49QLBWwLU25HBALcyxsrGGOnaHOMeQmJujrH8SvttXp3t922QBjmWL/aDZfXNKQXN/W2khUhPa2FLXVMcRo9h86zJHPj5GIxmhtTtF6Y5K49ikUJsiOZej++OTI+0cHlwWBvjYt7Hwh/NoPK+u6lre12p6L8n2G01mqEx4rblrA8vaFzGtJMTo8wrXRNJaqUCpX6P/pZ146cHpLvhT2/OP0BOr7Bq429p4dYN3qW4hHHJ558U3e++5Hmtw4nucxls9RRvPW8zvoWrmA8XyOAyfOUCyrO4FPpzm04b449FzT1J8ZGGJurcvMGVVsvedWWqoSZIaz2H7IuqXzeGXnNlYunsP5C7+w79BJuo+cQ2CtK6wPoXtKjIs84awxUIGeeMR66oHOtrc337G4adnSVmKxBFprbAuGh9N8c2qQPUf79p75NftGaPgiLhDCRd/QMgXYJcLDApuVoQYwADOq3I0tDdUPtqfqOpJxLzGUyV8euJI5fun34muVQJ+fZGu7LbyiDc8ZeP3v73AR0MB/s1VTzh8E+dncm1sg6AAAAABJRU5ErkJggg==",
         "E003" : "data:image/png\;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACA0lEQVQ4je2RTUtUYRiGr/d8zGfOOEMTDhplhljLsHARfRBRbSLaFCHUD9B/Mf+gFi0rjMB2gejKiBBsaJOBYNYYY6kzU86Z45mZ8/Gec9oUaDQatGnhtXt4uC+ehxv2+e9Qd1v2afGzY5mjEwcj0d4Tsa5zN7vyhc9ue9kMZLlTRnRa9KjRM497T7+61DsUkxEdRRFonmT2y5I9ujp/fsN3in99YVyo+UL34OsL2f50EImj6DqBULC9gCyadkgGN2bt7xOS0NpTqCAio/H81PVk35Dth3yzLTasBlXToG5t0bZtcmhJR7ojC9KaCMHv+LIAdUTPPBlLHLmjCZWadKgFLiYSEKRQyKlRcmoMGXo8aJWfznv1u9ulO4TH9OSzi9Hc7WygYomQA5k0mUyWeCwBCtjNNpvGJq26QTwU1BWfl05tsuQ1b/1yaNuFlcB9vqi7p67k+gcv5wcY6DlMItWNEouBCAkcl6bZYGWjzNzaJ+aqpQ/Vtju53bFD2PS9qaKxvhDA/eFM7mraD0krGqoaQQiBrwgiASy1LKarpZm3xvq4H4aru5Xih2B8tbdmikYlpTrOsNZuIw0Do1Zhea3Ei5V3FJbfPHxv1sZDWANkx1J+I5XWoteOJ7rv9SdSJwFWWubix5bxqCGdacD8U2g3IUAUSAL6z9kDmoCzR26ff+AH3pfWp7DtYGcAAAAASUVORK5CYII=",
@@ -473,44 +555,9 @@ var emoji = {
         "E535" : "data:image/png\;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAADd0lEQVQ4ja2UTWhcVRTHf/e9+yaTSTKxXxMKhYg0FlLBlUGlCilWAoZCUqGbdhsIlGIRbXVRuigKunFRKnSdZZcqEqRdpFSplCCdFEpiKmk6xulM0+RN3uf9cPHeTFIRdeGDA5d7z/mdc+497w//8yfaiwNw9F0hPnlt795Xe/r6PAv2XwLFlu+nPzcav8xa+/kq3OgAD8DRL8vl79+ZmvL6h4exUZRHib+n2SyXKBbZuH+fH65dSz/a3BxbhRsC4APHuf3pqVNv9FYqBAsLGahtSmHjGLAI6UGhsA21ltLhw7TqdT6bmfnxK2PedABGisVhmaa0qlW0lGjXRQtB/EedaH2ddNdu1L4KsbaEq6solWR+UtKqVpFpykixOAwgARxrRdJsooRARBFYS/r4MaWJCXadP48slzvdbn7zLc8uXcIpbuH09GKFwDSbONaKDjC11iZhiHFdhDGktRp9p0+z7+JFAIKbN1FPntA3Pk55/D26Dr3M6vHjSAsUChitSW12sQ5AagwqDNFhSLK+ju7to5LDfj97lt8mJ6mdOcPSyAhqbY2uoSF6Tp4kfPQIHYaoMCQ1hg4w0ZpwbY0kSYgaDYpHjgAQP3xIfWYGOzCArVQIV1aoX7kCQHlykiSOSaIoi9WaTstKCIJaDTY3Ub7PnhcHs1arVZJWAHs0aJ09wvx8FjgwQNxqES8uIqII5TjbwARIXRfj+8TWEjebAJhCAT+N6a7VwHVRvo+M42xq0pStIEACrueR5LOZ3SGgACUlBlifmwOgf3SUENgKAiLfpwn0njgBQGt+ngTQUqJyRgfY3kgBA6zdukW0vIwsFHhldhZ//34apRKVqSlemp4G4NfLl7M4IToFbY/NDpiQklQpbo+O8va9ewweO8Zgrfbcn/fgwgVqd+7Q5bqkeVXpTqC2ViRCZGogBEjJ05UVvqtUOHjuHANjY8jubjaqVZavXqV+9y5dQJo/hMgZ7TUfu+6z1x2nf6e8CGtRSnUyt89cwHNdRA5rQ34yZuMLrV9wAJasXYrylnVuSgjwPDwpkVLiuS6elLieh3Gcjp8BImDR2qV2QhqwMSTERK8Qjsir6ZgQz9tfzmNg2Vp93ZgPA1hoC16pAu+/5TjTBx3nkAfuP6pr3mYKesmYB3PGfF2H60CwU0FLwG6gK/f/L8x2kU+BAOBPJqWzja3pIIUAAAAASUVORK5CYII=",
         "E536" : "data:image/png\;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACCklEQVQ4jb2RPWgUQRiG3/nZ2Y05c/Fu70KOhBAEEzRaaYygjYKdmICCoPiLWlhoIVeIIvEnRQ5ELIQcmIigKYQEi+BP0C4iWohaaGEhCHIgil6883Izu5+FCmazqzkjvtXMPN/3zjvzAf9DrUwu2y5jx3K2e7vWXh482Gc19J+13VsfyC9MeZWJBRmeVomx175+sb9S6NIgvVY4W1JMtNZiKH/d3PHKI8u5Wn/IariUYKIZAFqY7HxP3tu/Msww0dEr67MAYEAYN6XcU39mspaEs57cyESLJkATcNeUh6/qYjbY0C2c3hMqEfm3swzvm/IVDUADuKw/Hwhr0ET6lV99dEYlpzJMdv4x8ojT9DXvNH0KY13c3nzedp+5TLR1cLXhuFoykWKiPTIhAIyZLwMSiAvACrKlXK5rZmLVoO2+STDeNqqns30ydu63CRsZzwzZadolF+fDeE65hSE7TXk7TYet+M3gxXMSlog+agA9ou7gau7sDPJhU9ytAVQBrOT2Nu/7l0cbalDl52C2ytiFIH/pV+9VAdIAHnqVa0E+xxAAJr3SoAbhsV+5EcYNiGkQRk1xbxgP1SKwRNh5j6g7MqBStILbffM2i1I7tzb2K5f2yPiDBZt1C+foKZWkkypJGSbXRNXJKBDUJlF/0fxYvyPzJKoudChheu7PXNcgjJvpHfPt+Sf6BmsOpo/7ZfQBAAAAAElFTkSuQmCC",
         "E537" : "data:image/png\;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAABxUlEQVQ4je2Qv4pTQRjFz0zundx7MURyCyHFFomFYhHYIq2FCII2FiI2PoC1hU/gi1jpFmIhi6X/wDQ22iSkDBslZJKYzc18M3O/sdlIzOYBBPeUB86Pcw5woX9OAgC63e43pVQzhOCY2UgplRCiGkKwvV7vWp7n91qt1nMAGAwGT6bT6VsASNP0aqfTeSeEiCaTydFwOHwaAcBisfgex/FPpVQzy7Lr1tqToii+hhB8CMFLKS9XKpUDAMjz/OEGWK/Xb0dR1AIAKeUVAIgAoN/vPwKARqPxoN1uvxqPxy9Go9GzzQxmlkQEACHLsltSypSZ17Va7S4RBQDCOVcCgNzez8yKiFCWZbztl2UJIoLW+iMzN9M0PRRCVKvV6k2t9Wcigvde7gPiDIh9wNlsdmyMWadpeidJkkPn3CWt9dEZEH8mbweNMXDO/QX03sMYA2PMcD6ff1BK3QdwsFqtToqi+LKdOdfQWnuu4cZnZnt6evoyhHAjjuPHy+Xyjfd+Yq3d33Bzvve+stNcEhGYObPWHidJAgAoiuI1gGg7I3eChoi093654xdEpJm5ZOYf6/X6PRGNnHOfQggREWnn3C9c6D/Rb9h2NgVZVPDxAAAAAElFTkSuQmCC"
-};
-
-function performValidate(event) {
-    switch (event.command) {
-    case "convertEmoji":
-        break;
-	}
-}
-
-function performCommand(event) {
-    switch (event.command) {
-    case "convertEmoji":
-        break;
     }
 }
 
-function validateToolbarItems() {
-	var toolbarItems = safari.extension.toolbarItems;
-	for (var i = 0; i < toolbarItems.length; ++i) {
-		if (toolbarItems[i].identifier !== "com.github.digdog.emoji.toolbarItem")
-			continue;
-		toolbarItems[i].validate();
-	}
-}
-
-function respondToMessage(event) {    
-    if (event.name == "convertToImage") {
-        var charCode = event.message;
-        var emojiIndex = charCode.toString(16).toUpperCase();
-        if (emojiIndex in emoji) {
-            event.target.page.dispatchMessage("replacedEmoji", {"charCode":charCode, "imgSrc":emoji[emojiIndex]});        
-        }            
-    }    
-}
-
-// toolbarItem validation and commendation 
-safari.application.addEventListener("validate", performValidate, false);
-safari.application.addEventListener("command", performCommand, false);
-safari.application.addEventListener("message", respondToMessage, false);
+emojiDataSource.init();
 
 </script>

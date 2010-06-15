@@ -1,6 +1,6 @@
 /*
  emojiSniffer.js
- 1.0
+ emoji.safariextension 1.0
 
  The MIT License
  
@@ -27,17 +27,18 @@
  */
  
 // The script will be loaded for all subresources and subframes, we only allow it to run on the main frame.
-if (window !== window.top)
+if (window != window.top)
     return;
 
 var emojiSniffer = {
-    "init":function(event) {
+    "init": function() {
         safari.self.addEventListener("message", emojiSniffer.delegate, false);
         emojiSniffer.sniff();
     },
-    "sniff":function(event) {
-        emojiSniffer.storage = [];
-    
+    "sniff": function() {
+        safari.self.tab.dispatchMessage("resetBadgeCount", null);
+        emojiSniffer.storage = {};
+
         var textNodes = document.evaluate("//text()", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         var itemIndex = textNodes.snapshotLength;
         var textNode;
@@ -48,45 +49,55 @@ var emojiSniffer = {
             var charCode;
             while (charCode = nodeData.charCodeAt(--nodeIndex)) {
                 if (charCode > 57344 && charCode < 59000) {
-                    // TODO                    
-                    emojiSniffer.storage.push({"charCode":charCode, "indexAt":nodeIndex, "node":textNode});
-                    safari.self.tab.dispatchMessage("foundEmoji", emojiSniffer.storage.length);
-                    safari.self.tab.dispatchMessage("convertToImage", charCode);
+                    var keyName = charCode.toString(16).toUpperCase();
+                    if (!emojiSniffer.storage[keyName]) {
+                        emojiSniffer.storage[keyName] = [];
+                    }
+                    emojiSniffer.storage[keyName].push({"node":textNode, "atIndex":nodeIndex});
+                    safari.self.tab.dispatchMessage("increaseBadgeCount", null);
+                    // Read global.html for more detail about the event messsage format below.
+                    safari.self.tab.dispatchMessage("convertToImage", {"false":keyName});
                 }
             }            
         }
     },
-    "delegate":function(event) {
+    "convert": function() {
+        for (var keyName in emojiSniffer.storage) {
+            // Read global.html for more detail about the event messsage format below.
+            safari.self.tab.dispatchMessage("convertToImage", {"true":keyName});
+        }
+    },
+    "delegate": function(event) {
         switch(event.name) {
-        case "replacedEmoji":
-            var charCode = event.message.charCode;
+        case "renderEmoji":
+            var keyName = event.message.charCode;
             var imgSrc = event.message.imgSrc;
-            // TODO            
-            var result = emojiSniffer.storage.map(function(item) {
-                if (item.charCode == charCode) {
-                    var nodeBackup = item.node;
-                    item.node.data = nodeBackup.data.substr(0, item.indexAt);
+            var result = emojiSniffer.storage[keyName].map(function(item) {
+                var originalNode = item.node;
+                item.node.data = originalNode.data.substr(0, item.atIndex);
                 
-                    var newimg = document.createElement('img');
-				    newimg.setAttribute('src',imgSrc);
-				    emojiSniffer.insertAfter(newimg, item.node);
-				    emojiSniffer.insertAfter(document.createTextNode(""), newimg);
-				    
-				    item.node += nodeBackup.data.substring(item.indexAt);
-                }
+                var emojiImage = document.createElement("img");
+				emojiImage.setAttribute("src",imgSrc);
+				emojiImage.setAttribute("type", "image/png");
+				emojiSniffer.insertAfter(emojiImage, item.node);
+				emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
+				
+				item.node += originalNode.data.substring(item.atIndex);
             });   
+            break;
+        case "sniff":
+            emojiSniffer.sniff();
             break;
         }
     },
-    "storage":[],
     "insertAfter": function(newNode, existingNode) {
         if (existingNode.nextSibling) {
             existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
         } else {
             existingNode.parentNode.appendChild(newNode);
         }
-    }
+    },
+    "storage":{}
 }
 
-// We want the script to run the sniffer at the very last moment
-window.addEventListener("load", emojiSniffer.init, false);
+emojiSniffer.init();
