@@ -1,5 +1,5 @@
 function reset(e) {
-    safari.self.tab.dispatchMessage("resetBadgeCount", null);
+    safari.self.tab.dispatchMessage("updateBadgeCount", 0);
 }
 
 // FIXME: still have some bugs on reseting badgeCount

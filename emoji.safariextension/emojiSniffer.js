@@ -33,8 +33,9 @@ var emojiSniffer = {
     },
     "sniff": function() {
         emojiSniffer.storage = {};
+        var badgeCount = 0;
 
-        var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(), ' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(),' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         var itemIndex = textNodes.snapshotLength;
         var textNode;
 
@@ -49,18 +50,12 @@ var emojiSniffer = {
                         emojiSniffer.storage[keyName] = [];
                     }
                     emojiSniffer.storage[keyName].push({"node":textNode, "atIndex":nodeIndex});
-                    safari.self.tab.dispatchMessage("increaseBadgeCount", null);
-                    // Read global.html for more detail about the event messsage format below.
-                    safari.self.tab.dispatchMessage("convertToImage", {"false":keyName});
+                    safari.self.tab.dispatchMessage("convertToImage", keyName);
+                    badgeCount++;
                 }
             }            
         }
-    },
-    "convert": function() {
-        for (var keyName in emojiSniffer.storage) {
-            // Read global.html for more detail about the event messsage format below.
-            safari.self.tab.dispatchMessage("convertToImage", {"true":keyName});
-        }
+        safari.self.tab.dispatchMessage("updateBadgeCount", badgeCount);
     },
     "delegate": function(event) {
         switch(event.name) {
@@ -69,19 +64,20 @@ var emojiSniffer = {
             var imgSrc = event.message.imgSrc;
             var result = emojiSniffer.storage[keyName].map(function(item) {
                 var originalNode = item.node;
-                item.node.data = originalNode.data.substr(0, item.atIndex);
-                
-                var emojiImage = document.createElement("img");
-				emojiImage.setAttribute("src",imgSrc);
-				emojiImage.setAttribute("type", "image/png");
-				emojiSniffer.insertAfter(emojiImage, item.node);
-				emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
-				
-				item.node += originalNode.data.substring(item.atIndex);
-            });   
+                if (originalNode.data) {
+                    item.node.data = originalNode.data.substr(0, item.atIndex);
+                    
+                    var emojiImage = document.createElement("img");
+				    emojiImage.setAttribute("src",imgSrc);
+				    emojiImage.setAttribute("type", "image/png");
+				    emojiSniffer.insertAfter(emojiImage, item.node);
+				    emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
+				    
+				    item.node += originalNode.data.substring(item.atIndex);                
+                }
+            });
             break;
         case "sniff":
-            safari.self.tab.dispatchMessage("resetBadgeCount", null);
             emojiSniffer.sniff();
             break;
         }

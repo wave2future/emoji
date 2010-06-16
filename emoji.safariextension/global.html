@@ -28,7 +28,7 @@
  THE SOFTWARE.
  */
 var badgeCount = 0;
- 
+
 var emojiDataSource = {
     "init": function(event) {
         safari.application.addEventListener("message", emojiDataSource.respondToMessage, false);
@@ -38,20 +38,14 @@ var emojiDataSource = {
     "respondToMessage": function(event) {
         switch (event.name) {
         case "convertToImage":
-            // event.message could be {"true":keyName} or {"false":keyName}, to allow sender (emojiSniffer) to decide if 
-            // itself was allowed to convert image based on user setting.
-            var keyName = event.message[safari.extension.settings.convertEmojiManually];
+            var keyName = event.message;
             if (keyName in emojiDataSource.table) {
                 event.target.page.dispatchMessage("renderEmoji", {"charCode":keyName, "imgSrc":emojiDataSource.table[keyName]});        
             } 
             break;
-        case "resetBadgeCount":
-            badgeCount = 0;
-            emojiDataSource.validateToolbarItems();     
-            break;
-        case "increaseBadgeCount":
-            badgeCount++;
-            emojiDataSource.validateToolbarItems();     
+        case "updateBadgeCount":
+            badgeCount = event.message;
+            emojiDataSource.validateToolbarItems();
             break;
         }    
     },
@@ -74,9 +68,9 @@ var emojiDataSource = {
     "validateToolbarItems": function validateToolbarItems() {
         var toolbarItems = safari.extension.toolbarItems;
         for (var i = 0; i < toolbarItems.length; ++i) {
-            if (toolbarItems[i].identifier !== "com.github.digdog.emoji.toolbarItem")
-            continue;
-            toolbarItems[i].validate();
+            if (toolbarItems[i].identifier.match("convertEmojiToolbarItem")) {
+                toolbarItems[i].validate();             
+            }
         }
     },
     "table": {
