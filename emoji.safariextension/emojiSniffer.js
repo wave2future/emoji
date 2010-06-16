@@ -34,7 +34,7 @@ var emojiSniffer = {
     "sniff": function() {
         emojiSniffer.storage = {};
 
-        var textNodes = document.evaluate("//text()", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(), ' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         var itemIndex = textNodes.snapshotLength;
         var textNode;
 
