@@ -45,6 +45,17 @@
 			top: 1em;
 			right: 1em;		
 		}
+		#adtext {
+			position: absolute;
+			top: 0.7em;
+			right: 8em;		
+			font-size: x-small;
+			text-align: right;
+			line-height: 1.5em;
+		}
+		#adtext a {
+			color: grey;
+		}
 		#footer {
 			clear: both;
 			margin-top: 8em;
@@ -84,21 +95,21 @@
     	.large.awesome, .large.awesome:visited { font-size: 14px; padding: 8px 14px 9px; }
 	    .red.awesome, .red.awesome:visited { background-color: #e33100; }
 	    .red.awesome:hover { background-color: #872300; }
-	    </style>
-        <script type="text/javascript">
-            var tweetmeme_source = "digdog";
-            var tweetmeme_url = "http://digdog.github.com/emoji";
-            var tweetmeme_service = "bit.ly";
-            var tweetmeme_style = "compact";
-            var _gaq = _gaq || [];
-            _gaq.push(['_setAccount', 'UA-2112815-14']);
-            _gaq.push(['_trackPageview']);
-            (function() {
-                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-            })();
-        </script>
+	</style>
+    <script type="text/javascript">
+        var tweetmeme_source = "digdog";
+        var tweetmeme_url = "http://digdog.github.com/emoji";
+        var tweetmeme_service = "bit.ly";
+        var tweetmeme_style = "compact";
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-2112815-14']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
 </head>
 <body>
     <div id="facebook">
@@ -108,7 +119,11 @@
         <script type="text/javascript" src="http://tweetmeme.com/i/scripts/button.js"></script>
     </div>
     <div id="ad">
-        <a href="http://bit.ly/qremoji"><img src="http://homepage.mac.com/digdog/qremoji/images/icon.png" alt="QR+Emoji" title="QR+Emoji: QR Code scanner, reader and generator for iPhone and iPod touch"></a>
+    	<a href="http://bit.ly/qremoji"><img src="http://homepage.mac.com/digdog/qremoji/images/icon.png" alt="QR+Emoji" title="QR+Emoji: QR Code scanner, reader and generator for iPhone and iPod touch"></a>
+    </div>
+    <div id="adtext">
+    	<p>Looking for more <b>Emoji</b>?<br/>Try <a href="http://bit.ly/qremoji" title="QR+Emoji: QR Code scanner, reader and generator for iPhone and iPod touch"><b>QR+Emoji</b> for iPhone</a>.</p>
+    	Created by me, <a href="http://twitter.com/digdog" title="Follow me on Twitter">@digdog</a>.
     </div>
     <div class="container">
         <img src="banner.png">
