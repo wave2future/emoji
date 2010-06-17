@@ -38,7 +38,7 @@
 		#twitter {
 			position: fixed;
 			bottom: 1em;
-			right: 0em;
+			right: 1em;
 		}
 		#ad {
 			position: fixed;
@@ -96,11 +96,13 @@
 	    .red.awesome, .red.awesome:visited { background-color: #e33100; }
 	    .red.awesome:hover { background-color: #872300; }
 	</style>
+	<script src="retweet.js"></script>
     <script type="text/javascript">
-        var tweetmeme_source = "digdog";
-        var tweetmeme_url = "http://digdog.github.com/emoji";
-        var tweetmeme_service = "bit.ly";
-        var tweetmeme_style = "compact";
+    	RetweetJS.link_text = "Retweet <img src='retweet.png'>";
+    	RetweetJS.styling += "a.retweet {position: fixed; bottom:1.8em; right: 1.5em;} a.retweet img {vertical-align: bottom;}";
+    	RetweetJS.prefix = "RT @digdog's ";
+    	RetweetJS.bitly_user = "digdog";
+    	RetweetJS.bitly_key = "R_c2714861c8c3862eeff950ed7e12bc74";
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-2112815-14']);
         _gaq.push(['_trackPageview']);
@@ -116,7 +118,7 @@
         <iframe src="http://www.facebook.com/widgets/like.php?href=http://digdog.tumblr.com/emoji&layout=button_count&show_faces=false" scrolling="no" frameborder="0" style="border:none; width:100px; height:20px;"></iframe>
     </div>
     <div id="twitter">
-        <script type="text/javascript" src="http://tweetmeme.com/i/scripts/button.js"></script>
+        <a class="retweet self" href=""></a>
     </div>
     <div id="ad">
     	<a href="http://bit.ly/qremoji"><img src="http://homepage.mac.com/digdog/qremoji/images/icon.png" alt="QR+Emoji" title="QR+Emoji: QR Code scanner, reader and generator for iPhone and iPod touch"></a>
