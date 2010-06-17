@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Emoji Safari Extension &mdash; Convert emoji characters to icons automatically</title>
-    <meta property="og:title" content="Emoji Safari Extension"/>
     <meta property="og:image" content="http://digdog.github.com/emoji/facebook.png"/>
+    <title>Emoji Safari Extension &mdash; Convert emoji characters to icons automatically</title>
     <link rel="shortcut icon" type="image/png" href="http://homepage.mac.com/digdog/images/favicon.png" />
     <link rel="alternate" type="application/rss+xml" title="[digdog dig];" href="http://digdog.tumblr.com/rss" />
     <style type="text/css" media="screen">
@@ -31,10 +30,15 @@
 			margin-right: 20px;
             text-align: justify;
 		}
-		#social {
+		#facebook {
             position: absolute;
             top: 1em;
             left: 1em;
+		}
+		#twitter {
+			position: absolute;
+			bottom: 1em;
+			left: 1em;		
 		}
 		#ad {
 			position: absolute;
@@ -81,10 +85,18 @@
 	    .red.awesome, .red.awesome:visited { background-color: #e33100; }
 	    .red.awesome:hover { background-color: #872300; }
 	    </style>
+        <script type="text/javascript">
+            var tweetmeme_source = "digdog";
+            var tweetmeme_url = "http://digdog.github.com/emoji";
+            var tweetmeme_service = "bit.ly";
+        </script>
 </head>
 <body>
-    <div id="social">
-    <iframe src="http://www.facebook.com/widgets/like.php?href=http://digdog.tumblr.com/emoji&layout=button_count&show_faces=false" scrolling="no" frameborder="0" style="border:none; width:100px; height:20px"></iframe>
+    <div id="facebook">
+        <iframe src="http://www.facebook.com/widgets/like.php?href=http://digdog.tumblr.com/emoji&layout=button_count&show_faces=false" scrolling="no" frameborder="0" style="border:none; width:100px; height:20px;"></iframe>
+    </div>
+    <div id="twitter">
+        <script type="text/javascript" src="http://tweetmeme.com/i/scripts/button.js"></script>
     </div>
     <div id="ad">
         <a href="http://bit.ly/qremoji"><img src="http://homepage.mac.com/digdog/qremoji/images/icon.png" alt="QR+Emoji" title="QR+Emoji: QR Code scanner, reader and generator for iPhone and iPod touch"></a>
