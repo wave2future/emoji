@@ -41,9 +41,10 @@ var emojiSniffer = {
         
         this.sniff();
     },
-    "sniff": function() {
-        var badgeCount = 0;
-
+    "sniff": function(badgeCount) {
+        var previousReplacedEmojiImageElements = document.evaluate("//img[@alt='com.github.digdog.emoji']", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        var badgeCount = previousReplacedEmojiImageElements.snapshotLength;
+        
         var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(),' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);        
         var itemIndex = textNodes.snapshotLength;
         var textNode;
@@ -64,7 +65,6 @@ var emojiSniffer = {
                 }
             }            
         }        
-
         safari.self.tab.dispatchMessage("updateBadgeCount", badgeCount);
     },
     "delegate": function(event) {
@@ -81,7 +81,7 @@ var emojiSniffer = {
                     var emojiImage = document.createElement("img");
 				    emojiImage.setAttribute("src",imgSrc);
 				    emojiImage.setAttribute("type", "image/png");
-				    
+				    emojiImage.setAttribute("alt", "com.github.digdog.emoji");
 				    emojiSniffer.insertAfter(emojiImage, item.node);
 				    emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
 				    
@@ -96,7 +96,7 @@ var emojiSniffer = {
             
             break;
         case "sniff":
-            emojiSniffer.sniff();
+            emojiSniffer.sniff(0);
             break;
         }
     },
