@@ -93,3 +93,5 @@ var emojiSniffer = {
 }
 
 emojiSniffer.init();
+
+document.body.addEventListener("DOMSubtreeModified", function(e){emojiSniffer.sniff();}, false); 
