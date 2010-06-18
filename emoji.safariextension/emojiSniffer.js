@@ -29,17 +29,25 @@
 var emojiSniffer = {
     "init": function() {
         safari.self.addEventListener("message", emojiSniffer.delegate, false);
-        //document.body.addEventListener("DOMSubtreeModified", function(e){alert("normal "+e.target);}, false); 
-        emojiSniffer.sniff();
+        
+        // FIXME: Somehow the document.body doesn't exist at this moment (for some websites)...
+        if (document.body) {
+            document.body.addEventListener("DOMNodeInserted", function(e){
+                if (e.target.nodeType == 3 && emojiSniffer.storageSize() == 0) {
+                    emojiSniffer.sniff(); // Sniff() again when textNode inserted into document.body
+                } 
+            }, false);
+        }
+        
+        this.sniff();
     },
-    "sniff": function(event) {
-        emojiSniffer.storage = {};
+    "sniff": function() {
         var badgeCount = 0;
 
-        var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(),' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(),' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);        
         var itemIndex = textNodes.snapshotLength;
         var textNode;
-
+        
         while (textNode = textNodes.snapshotItem(--itemIndex)) {
             var nodeData = textNode.data;
             var nodeIndex = nodeData.length;
@@ -55,7 +63,8 @@ var emojiSniffer = {
                     badgeCount++;
                 }
             }            
-        }
+        }        
+
         safari.self.tab.dispatchMessage("updateBadgeCount", badgeCount);
     },
     "delegate": function(event) {
@@ -72,10 +81,11 @@ var emojiSniffer = {
                     var emojiImage = document.createElement("img");
 				    emojiImage.setAttribute("src",imgSrc);
 				    emojiImage.setAttribute("type", "image/png");
+				    
 				    emojiSniffer.insertAfter(emojiImage, item.node);
 				    emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
 				    
-				    item.node += originalNode.data.substring(item.atIndex);				    
+				    item.node += originalNode.data.substring(item.atIndex);
                 }
                 context.splice(idx, 1);
             });
@@ -96,6 +106,13 @@ var emojiSniffer = {
         } else {
             existingNode.parentNode.appendChild(newNode);
         }
+    },
+    "storageSize": function() {
+        var count = 0;
+        for(var prop in emojiSniffer.storage) {
+            count++;
+        }
+        return count;
     },
     "storage":{}
 }
