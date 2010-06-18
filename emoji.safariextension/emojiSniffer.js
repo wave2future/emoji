@@ -41,7 +41,7 @@ var emojiSniffer = {
         
         this.sniff();
     },
-    "sniff": function(badgeCount) {
+    "sniff": function() {
         var previousReplacedEmojiImageElements = document.evaluate("//img[@alt='com.github.digdog.emoji']", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         var badgeCount = previousReplacedEmojiImageElements.snapshotLength;
         
@@ -96,7 +96,7 @@ var emojiSniffer = {
             
             break;
         case "sniff":
-            emojiSniffer.sniff(0);
+            emojiSniffer.sniff();
             break;
         }
     },
