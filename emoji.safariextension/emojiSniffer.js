@@ -25,13 +25,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
- 
+
 var emojiSniffer = {
     "init": function() {
         safari.self.addEventListener("message", emojiSniffer.delegate, false);
+        //document.body.addEventListener("DOMSubtreeModified", function(e){alert("normal "+e.target);}, false); 
         emojiSniffer.sniff();
     },
-    "sniff": function() {
+    "sniff": function(event) {
         emojiSniffer.storage = {};
         var badgeCount = 0;
 
@@ -62,7 +63,8 @@ var emojiSniffer = {
         case "renderEmoji":
             var keyName = event.message.charCode;
             var imgSrc = event.message.imgSrc;
-            var result = emojiSniffer.storage[keyName].map(function(item) {
+            
+            emojiSniffer.storage[keyName].forEach(function(item, idx, context) {
                 var originalNode = item.node;
                 if (originalNode.data) {
                     item.node.data = originalNode.data.substr(0, item.atIndex);
@@ -73,9 +75,15 @@ var emojiSniffer = {
 				    emojiSniffer.insertAfter(emojiImage, item.node);
 				    emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
 				    
-				    item.node += originalNode.data.substring(item.atIndex);                
+				    item.node += originalNode.data.substring(item.atIndex);				    
                 }
+                context.splice(idx, 1);
             });
+            
+            if (emojiSniffer.storage[keyName].length == 0) {
+                delete emojiSniffer.storage[keyName];
+            };
+            
             break;
         case "sniff":
             emojiSniffer.sniff();
@@ -93,5 +101,3 @@ var emojiSniffer = {
 }
 
 emojiSniffer.init();
-
-document.body.addEventListener("DOMSubtreeModified", function(e){emojiSniffer.sniff();}, false); 
