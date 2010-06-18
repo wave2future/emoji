@@ -11,9 +11,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.3</string>
+	<string>1.0.4</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.3</string>
+	<string>1.0.4</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Global Page</key>
@@ -38,6 +38,10 @@
 	</dict>
 	<key>Content</key>
 	<dict>
+		<key>Blacklist</key>
+		<array>
+			<string>http://*.facebook.com/*</string>
+		</array>
 		<key>Scripts</key>
 		<dict>
 			<key>End</key>
