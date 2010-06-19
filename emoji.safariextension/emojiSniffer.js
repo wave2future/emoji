@@ -29,16 +29,7 @@
 var emojiSniffer = {
     "init": function() {
         safari.self.addEventListener("message", emojiSniffer.delegate, false);
-        
-        // FIXME: Somehow the document.body doesn't exist at this moment (for some websites)...
-        if (document.body) {
-            document.body.addEventListener("DOMNodeInserted", function(e){
-                if (e.target.nodeType == 3 && emojiSniffer.storageSize() == 0) {
-                    emojiSniffer.sniff(); // Sniff() again when textNode inserted into document.body
-                } 
-            }, false);
-        }
-        
+        safari.self.tab.dispatchMessage("checkAutoConvert", null);        
         this.sniff();
     },
     "sniff": function() {
@@ -93,11 +84,26 @@ var emojiSniffer = {
             if (emojiSniffer.storage[keyName].length == 0) {
                 delete emojiSniffer.storage[keyName];
             };
-            
             break;
         case "sniff":
             emojiSniffer.sniff();
             break;
+        case "autoConvert":
+            if (event.message) {
+                // FIXME: Somehow the document.body doesn't exist at this moment (for some websites)...
+                if (document.body) {
+                    document.body.addEventListener("DOMNodeInserted", emojiSniffer.sniffAgain, false);                
+                }
+            } else {
+                if (document.body) {
+                    document.body.removeEventListener("DOMNodeInserted", emojiSniffer.sniffAgain, false);                
+                }
+            }
+        }
+    },
+    "sniffAgain": function(event) {
+        if (event.target.nodeType == 3 && emojiSniffer.storageSize() == 0) {
+            emojiSniffer.sniff(); // Sniff() again when textNode inserted into document.body
         }
     },
     "insertAfter": function(newNode, existingNode) {

@@ -37,6 +37,9 @@ var emojiDataSource = {
     },
     "respondToMessage": function(event) {
         switch (event.name) {
+        case "checkAutoConvert":
+            event.target.page.dispatchMessage("autoConvert", safari.extension.settings.autoConvertWhenPageUpdated);
+            break;
         case "convertToImage":
             var keyName = event.message;
             if (keyName in emojiDataSource.table) {
