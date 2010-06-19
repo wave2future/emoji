@@ -38,22 +38,18 @@ var emojiSniffer = {
         
         var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(),' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);        
         var itemIndex = textNodes.snapshotLength;
-        var textNode;
         
-        while (textNode = textNodes.snapshotItem(--itemIndex)) {
+        while ((textNode = textNodes.snapshotItem(--itemIndex)) !== null) {        
             var nodeData = textNode.data;
-            var nodeIndex = nodeData.length;
-            var charCode;
-            while (charCode = nodeData.charCodeAt(--nodeIndex)) {
-                if (charCode > 57344 && charCode < 59000) {
-                    var keyName = charCode.toString(16).toUpperCase();
-                    if (!emojiSniffer.storage[keyName]) {
-                        emojiSniffer.storage[keyName] = [];
-                    }
-                    emojiSniffer.storage[keyName].push({"node":textNode, "atIndex":nodeIndex});
-                    safari.self.tab.dispatchMessage("convertToImage", keyName);
-                    badgeCount++;
+            var regex = new RegExp("([\uE001-\uE537])", "gi");
+            while ((match = regex.exec(nodeData)) !== null) {
+                var keyName = match[0].charCodeAt(0).toString(16).toUpperCase();
+                if (emojiSniffer.storage[keyName] == undefined) {
+                    emojiSniffer.storage[keyName] = [];
                 }
+                emojiSniffer.storage[keyName].push({"node":textNode, "atIndex":match.index});
+                safari.self.tab.dispatchMessage("convertToImage", keyName);
+                badgeCount++;
             }            
         }        
         safari.self.tab.dispatchMessage("updateBadgeCount", badgeCount);
@@ -62,25 +58,26 @@ var emojiSniffer = {
         switch(event.name) {
         case "renderEmoji":
             var keyName = event.message.charCode;
-            var imgSrc = event.message.imgSrc;
-            
-            emojiSniffer.storage[keyName].forEach(function(item, idx, context) {
-                var originalNode = item.node;
+            var imgSrc = event.message.imgSrc;            
+
+            var storage = emojiSniffer.storage[keyName];
+            for (var idx in storage) {
+                var originalNode = storage[idx].node;
                 if (originalNode.data) {
-                    item.node.data = originalNode.data.substr(0, item.atIndex);
+                    storage[idx].node.data = originalNode.data.substr(0, storage[idx].atIndex);
                     
                     var emojiImage = document.createElement("img");
-				    emojiImage.setAttribute("src",imgSrc);
-				    emojiImage.setAttribute("type", "image/png");
-				    emojiImage.setAttribute("alt", "com.github.digdog.emoji");
-				    emojiSniffer.insertAfter(emojiImage, item.node);
-				    emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
-				    
-				    item.node += originalNode.data.substring(item.atIndex);
+			        emojiImage.setAttribute("src",imgSrc);
+			        emojiImage.setAttribute("type", "image/png");
+			        emojiImage.setAttribute("alt", "com.github.digdog.emoji");
+			        emojiSniffer.insertAfter(emojiImage, storage[idx].node);
+			        emojiSniffer.insertAfter(document.createTextNode(""), emojiImage);
+			        
+			        storage[idx].node += originalNode.data.substring(storage[idx].atIndex);
                 }
-                context.splice(idx, 1);
-            });
-            
+                storage.splice(idx, 1);            
+            }
+
             if (emojiSniffer.storage[keyName].length == 0) {
                 delete emojiSniffer.storage[keyName];
             };
