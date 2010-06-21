@@ -41,10 +41,10 @@ var emojiDataSource = {
             event.target.page.dispatchMessage("autoConvert", safari.extension.settings.autoConvertWhenPageUpdated);
             break;
         case "convertToImage":
-            var keyName = event.message;
-            if (keyName in emojiDataSource.table) {
+            var charCodes = event.message;
+            charCodes.forEach(function(keyName){
                 event.target.page.dispatchMessage("renderEmoji", {"charCode":keyName, "imgSrc":emojiDataSource.table[keyName]});        
-            } 
+            });
             break;
         case "updateBadgeCount":
             badgeCount = event.message;
