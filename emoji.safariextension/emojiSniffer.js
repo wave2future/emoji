@@ -1,6 +1,6 @@
 /*
  emojiSniffer.js
- emoji.safariextension 1.0
+ emoji.safariextension
 
  The MIT License
  
@@ -29,14 +29,13 @@
 var emojiSniffer = {
     "init": function() {
         safari.self.addEventListener("message", emojiSniffer.delegate, false);
-        safari.self.tab.dispatchMessage("checkAutoConvert", null);        
-        this.sniff();
+        setInterval(emojiSniffer.sniff, 5000);
     },
     "sniff": function() {
-        var previousReplacedEmojiImageElements = document.evaluate("//img[@alt='com.github.digdog.emoji']", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+        var previousReplacedEmojiImageElements = document.evaluate("//img[@alt='com.github.digdog.emoji']", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
         var badgeCount = previousReplacedEmojiImageElements.snapshotLength;
         
-        var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(),' &#9;&#xA;&#xD;','')) > 0]", document.body, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);        
+        var textNodes = document.evaluate("//text()[string-length(translate(normalize-space(),' &#9;&#xA;&#xD;','')) > 0]", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);        
         var itemIndex = textNodes.snapshotLength;
         
         var charCodes = [];
@@ -85,22 +84,6 @@ var emojiSniffer = {
         case "sniff":
             emojiSniffer.sniff();
             break;
-        case "autoConvert":
-            if (event.message) {
-                // FIXME: Somehow the document.body doesn't exist at this moment (for some websites)...
-                if (document.body) {
-                    document.body.addEventListener("DOMNodeInserted", emojiSniffer.sniffAgain, false);                
-                }
-            } else {
-                if (document.body) {
-                    document.body.removeEventListener("DOMNodeInserted", emojiSniffer.sniffAgain, false);                
-                }
-            }
-        }
-    },
-    "sniffAgain": function(event) {
-        if (event.target.nodeType == 3 && emojiSniffer.storageSize() == 0) {
-            emojiSniffer.sniff(); // Sniff() again when textNode inserted into document.body
         }
     },
     "insertAfter": function(newNode, existingNode) {

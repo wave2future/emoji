@@ -2,7 +2,7 @@
 <script>
 /*
  global.html
- emoji.safariextension 1.0
+ emoji.safariextension
 
  The MIT License
  
@@ -37,9 +37,6 @@ var emojiDataSource = {
     },
     "respondToMessage": function(event) {
         switch (event.name) {
-        case "checkAutoConvert":
-            event.target.page.dispatchMessage("autoConvert", safari.extension.settings.autoConvertWhenPageUpdated);
-            break;
         case "convertToImage":
             var charCodes = event.message;
             charCodes.forEach(function(keyName){
