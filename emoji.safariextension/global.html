@@ -47,6 +47,9 @@ var emojiDataSource = {
             badgeCount = event.message;
             emojiDataSource.validateToolbarItems();
             break;
+        case "checkAutoConvert":
+            event.target.page.dispatchMessage("autoConvert", safari.extension.settings.autoConvert);
+            break;
         }    
     },
     "performCommand": function(event) {

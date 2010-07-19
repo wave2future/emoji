@@ -29,7 +29,8 @@
 var emojiSniffer = {
     "init": function() {
         safari.self.addEventListener("message", emojiSniffer.delegate, false);
-        setInterval(emojiSniffer.sniff, 5000);
+        safari.self.tab.dispatchMessage("checkAutoConvert", null);
+        emojiSniffer.sniff();
     },
     "sniff": function() {
         var previousReplacedEmojiImageElements = document.evaluate("//img[@alt='com.github.digdog.emoji']", document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
@@ -56,7 +57,7 @@ var emojiSniffer = {
             }            
         }        
         safari.self.tab.dispatchMessage("convertToImage", charCodes);
-        safari.self.tab.dispatchMessage("updateBadgeCount", badgeCount);
+        safari.self.tab.dispatchMessage("updateBadgeCount", badgeCount);        
     },
     "delegate": function(event) {
         switch(event.name) {
@@ -84,6 +85,12 @@ var emojiSniffer = {
         case "sniff":
             emojiSniffer.sniff();
             break;
+        case "autoConvert":
+            clearInterval(emojiSniffer.intervalID);
+            if (event.message) {
+                emojiSniffer.intervalID = setInterval(emojiSniffer.sniff, 5000);
+            } 
+            break;
         }
     },
     "insertAfter": function(newNode, existingNode) {
@@ -100,7 +107,8 @@ var emojiSniffer = {
         }
         return count;
     },
-    "storage":{}
+    "storage":{},
+    "intervalID":{}
 }
 
 emojiSniffer.init();
