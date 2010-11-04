@@ -1,11 +1,8 @@
 /*
  emojiSniffer.js
- emoji.safariextension
-
- The MIT License
+ emoji.safariextension (Released under MIT License)
  
- Copyright (c) 2010 Ching-Lan 'digdog' Huang and digdog software.
- http://digdog.tumblr.com
+ Copyright (c) 2010 Ching-Lan 'digdog' HUANG. http://digdog.tumblr.com
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
